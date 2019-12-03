@@ -1,0 +1,21 @@
+abcdef
+
+
+- name: copy mtar file to hanaServer
+    maven_artifact: group_id={{groupId}} artifact_id={{artifactId}} repository_url=https://sparkbintest1.collaboration.agilent.com/repository/MAVEN-EAS-ITBIHANAP-H/ dest=/tmp/ extension=mtar validate_certs=no
+- name: login xs command
+    shell: /hana/shared/HD0/xs/bin/xs login -u {{username}} -p {{password}} -o {{ORGANIZATION}} -s {{TEST_SPACE}}
+    register: loginData
+  - name: show login information
+    debug:
+      msg: "{{loginData.stdout_lines}}"
+  - name: import mtar file by xs command
+    shell: /hana/shared/HD0/xs/bin/xs deploy -f /tmp/{{artifactId}}-{{version}}.mtar
+    register: importdata
+  - name: show result
+    debug:
+      msg: "{{importdata.stdout_lines}}"
+  - name: remove temp file
+    file:
+      path: /tmp/{{artifactId}}-{{version}}.mtar
+      state: absent
